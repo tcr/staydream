@@ -1,6 +1,7 @@
 [package]
+authors = ["Tim Ryan <trim@fb.com>"]
 name = "staydream"
 version = "0.1.0"
-authors = ["Tim Ryan <trim@fb.com>"]
-
 [dependencies]
+sysbar = "0.1.0"
+tempdir = "0.3.5"
