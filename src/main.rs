@@ -12,7 +12,21 @@ use std::fs::File;
 
 const RAIN: &'static [u8] = include_bytes!("../data/rain.mp3");
 
+fn print_sys(input: &str) {
+    Command::new("syslog")
+        .arg("-s")
+        .arg("-l")
+        .arg("notice")
+        .arg(&format!("TCREATE: {}", input))
+        .spawn()
+        .expect("good")
+        .wait()
+        .expect("bad");
+}
+
 fn main() {
+    print_sys("start");
+
     let dir = TempDir::new("staydream").expect("could not create temp dir");
     let file_path = dir.path().join("rain.mp3");
     println!("{:?}", file_path);
@@ -20,7 +34,6 @@ fn main() {
     let mut f = File::create(&file_path).unwrap();
     f.write_all(RAIN).unwrap();
     f.sync_all().unwrap();
-
 
     let mut bar = sysbar::Sysbar::new("☔️");
 
@@ -105,6 +118,7 @@ fn main() {
             let data2 = data2.clone();
             spawn(move || {
                 println!("KILLING");
+                print_sys("try");
                 let mut value = data2.lock().expect("could not unwrap mutex");
                 if let Some(mut child) = value.take() {
                     child.kill()
@@ -136,21 +150,14 @@ fn main() {
 }
 
 fn start_audio(file_path: &Path, level: i32) -> Child {
-    let play = Command::new("play")
-        .arg("-t").arg("mp3")
-        .arg(file_path)
+    let play = Command::new("/usr/local/bin/play")
+        .arg("-t")
+        .arg("mp3").arg(file_path)
         .arg("trim").arg("20").arg("140")
-        .arg("repeat")
-        .arg("-")
-        .arg("vol")
-        .arg(format!("{}", (level as f32) / 100.0))
-        .stdin(Stdio::piped())
+        .arg("repeat").arg("-")
+        .arg("vol").arg(format!("{}", (level as f32) / 100.0))
         .spawn()
         .expect("failed to execute child");
 
-    // if let Some(ref mut stdin) = play.stdin {
-    //     stdin.write(RAIN);
-    // }`
-    
     play
 }

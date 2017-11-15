@@ -1,5 +1,6 @@
 [package]
-authors = ["Tim Ryan <trim@fb.com>"]
+authors = ["Tim Ryan <tim@timryan.org>"]
+description = "Plays rain noise."
 name = "staydream"
 version = "0.1.0"
 [dependencies]
